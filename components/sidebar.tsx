@@ -11,6 +11,10 @@ import {
   Settings
 } from 'lucide-react';
 import { Button } from './ui/button';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu';
+import { LogoutButton } from './other/LogOutButton';
 
 const storeMenuItems = [
   { icon: Store, label: 'Consultation Center Services', id: 'store', subtext: 'Company Secretaryy, Etc' }
@@ -29,8 +33,11 @@ const bottomMenuItems = [
   { icon: Settings, label: 'Settings', id: 'settings' }
 ];
 
+
 export function Sidebar() {
   const { activeMenu, setActiveMenu } = useDashboardStore();
+
+
 
   return (
     <div className="w-48 bg-background border-r border-border flex flex-col">
@@ -75,9 +82,10 @@ export function Sidebar() {
           );
         })}
       </div>
-
       {/* Bottom Menu */}
+
       <div className="border-t border-border px-2 py-2 space-y-1">
+        <LogoutButton/>
         {bottomMenuItems.map((item) => {
           const Icon = item.icon;
           return (

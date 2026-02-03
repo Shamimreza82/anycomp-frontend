@@ -2,14 +2,18 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
+import { AuthProvider } from '@/context/AuthContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { Toaster } from 'sonner';
+
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'anycompany - Incorporate your business with ease',
+  description: 'Incorporate your business effortlessly with anycompany. Fast, reliable, and fully compliant company formation services tailored to your needs.',
+  generator: 'Next.js',
   icons: {
     icon: [
       {
@@ -37,7 +41,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        {children}
+        <AuthProvider>
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+            <Toaster />
+            {children}
+          </GoogleOAuthProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>
