@@ -4,12 +4,16 @@ import { EditServicePanel } from '@/components/edit-service-panel'
 import { ServiceDetailView } from '@/components/service-detail-view'
 import { ServicesTable } from '@/components/services-table'
 import { Sidebar } from '@/components/sidebar'
+import { getUserFromCookie } from '@/lib/auth'
 import { useDashboardStore } from '@/store/dashboardStore'
+import { useAuthStore } from '@/store/useAuthStore'
 import React from 'react'
 
 const DashboardHome = () => {
 
-      const { activeMenu, editingServiceId } = useDashboardStore();
+const { activeMenu, editingServiceId } = useDashboardStore();
+
+
   return (
     <div className="flex h-screen bg-background overflow-hidden">
         {/* Sidebar */}

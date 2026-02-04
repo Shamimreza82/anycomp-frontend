@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
-import { AuthProvider } from '@/context/AuthContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from 'sonner';
+import { AuthProvider } from '@/context/AuthContext';
 
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -46,8 +46,8 @@ export default function RootLayout({
             <Toaster />
             {children}
           </GoogleOAuthProvider>
-        </AuthProvider>
-        <Analytics />
+          </AuthProvider>
+        {/* <Analytics /> */}
       </body>
     </html>
   )

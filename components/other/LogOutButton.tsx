@@ -2,10 +2,13 @@
 
 import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/context/AuthContext"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/context/AuthContext"
+
 
 export function LogoutButton() {
+
+
   const {logout} = useAuth()
 const router = useRouter()
 

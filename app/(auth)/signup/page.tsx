@@ -15,23 +15,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-
 import { ArrowRight, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { useState } from "react";
 import { SignupInput, signupSchema } from "@/schemas/auth.schema";
 import { toast } from "sonner";
-import api from "@/lib/axiosInstance";
+
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+
 
 export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter()
   const { signup } = useAuth()
+
+
 
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),

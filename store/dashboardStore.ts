@@ -40,6 +40,7 @@ export interface DashboardState {
   // View Filter
   viewFilter: 'all' | 'drafts' | 'published';
   setViewFilter: (filter: 'all' | 'drafts' | 'published') => void;
+
 }
 
 const initialServices: Service[] = [
@@ -105,6 +106,10 @@ const initialServices: Service[] = [
   }
 ];
 
+
+
+
+
 export const useDashboardStore = create<DashboardState>((set) => ({
   // Navigation
   activeMenu: 'Specialists',
@@ -143,5 +148,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
 
   // View Filter
   viewFilter: 'all',
-  setViewFilter: (filter) => set({ viewFilter: filter })
+  setViewFilter: (filter) => set({ viewFilter: filter }), 
+
+
 }));

@@ -32,7 +32,7 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  console.log("Context user:", user);
+  console.log("User in app:", user);
 
   // Check if user is already logged in on mount
   useEffect(() => {

@@ -21,18 +21,9 @@ import { Input } from './ui/input';
 import { MoreVertical, Edit, Trash2, ChevronLeft, ChevronRight, Search, Plus, Download } from 'lucide-react';
 
 export function ServicesTable() {
-  const {
-    services,
-    currentPage,
-    pageSize,
-    setCurrentPage,
-    deleteService,
-    searchTerm,
-    setSearchTerm,
-    viewFilter,
-    setViewFilter,
-    setEditingServiceId
-  } = useDashboardStore();
+  const {services,currentPage, pageSize, setCurrentPage, deleteService,searchTerm,setSearchTerm,viewFilter,setViewFilter, setEditingServiceId} = useDashboardStore();
+
+  console.log(searchTerm)
 
   // Filter services based on view filter
   const filteredServices = services.filter((service) => {
