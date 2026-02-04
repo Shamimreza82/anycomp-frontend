@@ -2,9 +2,11 @@
 
 import { GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function GoogleBtn() {
-    
+
+
     const router = useRouter()
 
     return (
@@ -20,8 +22,15 @@ export default function GoogleBtn() {
                 })
                     .then((r) => r.json())
                     .then((data) => {
-                        console.log(data)
-                        router.push('/dashboard')
+                        if (data.status) {
+                            toast.success("Login successful")
+                            console.log(data)
+                            router.push('/dashboard')
+                        } else {
+                            console.log(data)
+                            toast.error(data.message || "Login failed")
+                        }
+
                     });
             }}
             onError={() => console.log("Login Failed")}
