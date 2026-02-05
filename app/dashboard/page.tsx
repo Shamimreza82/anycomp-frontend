@@ -1,6 +1,6 @@
 "use client"
 
-import { EditServicePanel } from '@/components/edit-service-panel'
+// import { EditServicePanel } from '@/components/edit-service-panel'
 import { ServiceDetailView } from '@/components/service-detail-view'
 import { ServicesTable } from '@/components/services-table'
 import { Sidebar } from '@/components/sidebar'
@@ -27,14 +27,14 @@ const { activeMenu, editingServiceId } = useDashboardStore();
             {activeMenu === 'specialists' ? (
               <ServicesTable />
             ) : (
-              <ServiceDetailView />
+              <ServicesTable />
             )}
           </div>
         </div>
       </div>
 
       {/* Edit Service Panel */}
-      {editingServiceId && <EditServicePanel />}
+      {/* {editingServiceId && <EditServicePanel />} */}
     </div>
   )
 }

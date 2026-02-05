@@ -1,154 +1,173 @@
 import { create } from 'zustand';
+import api from '@/lib/axiosInstance';
+
+export interface Media {
+  id: string;
+  url: string;
+  type?: string;
+}
 
 export interface Service {
   id: string;
-  name: string;
-  price: number;
-  purchases: number;
-  duration: string;
-  approvalStatus: 'pending' | 'approved' | 'rejected';
-  publishStatus: 'published' | 'draft' | 'archived';
-  description?: string;
-  image?: string;
+  title: string;
+  slug: string;
+  description: string;
+  basePrice: string;      // API returns string
+  finalPrice: string;     // API returns string
+  durationDays: number;
+  isDraft: boolean;
+  isVerified: boolean;
+  verificationStatus: string;
+  platformFee: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  userId: string;
+  totalNumberOfRatings: number;
+  averageRating: number | null;
+  media: Media[];
 }
 
 export interface DashboardState {
-  // Navigation
   activeMenu: string;
   setActiveMenu: (menu: string) => void;
 
-  // Services
   services: Service[];
   addService: (service: Service) => void;
   updateService: (id: string, service: Partial<Service>) => void;
   deleteService: (id: string) => void;
   setServices: (services: Service[]) => void;
 
-  // Pagination
   currentPage: number;
   pageSize: number;
+  totalServices: number;
   setCurrentPage: (page: number) => void;
 
-  // Search/Filter
   searchTerm: string;
   setSearchTerm: (term: string) => void;
 
-  // Edit Panel
   editingServiceId: string | null;
   setEditingServiceId: (id: string | null) => void;
 
-  // View Filter
   viewFilter: 'all' | 'drafts' | 'published';
   setViewFilter: (filter: 'all' | 'drafts' | 'published') => void;
 
+  singleSpecialist: Service | null;
+
+  fetchServices: () => Promise<void>;
+    setSpecialistd: (id: string) => void;
+    updateServiceStatus: (id: string) => void;
+    updateServiceStatusUnpublish: (id: string) => void;
+
 }
 
-const initialServices: Service[] = [
-  {
-    id: '1',
-    name: 'Incorporation of a new company',
-    price: 2000,
-    purchases: 20,
-    duration: '3 Days',
-    approvalStatus: 'approved',
-    publishStatus: 'published',
-    description: 'Complete company incorporation with all legal documentation'
-  },
-  {
-    id: '2',
-    name: 'Incorporation of a new company',
-    price: 2000,
-    purchases: 0,
-    duration: '1 Day',
-    approvalStatus: 'pending',
-    publishStatus: 'draft',
-    description: 'Expedited incorporation service'
-  },
-  {
-    id: '3',
-    name: 'Incorporation of a new company',
-    price: 2000,
-    purchases: 431,
-    duration: '14 Days',
-    approvalStatus: 'approved',
-    publishStatus: 'published',
-    description: 'Standard incorporation with full support'
-  },
-  {
-    id: '4',
-    name: 'Incorporation of a new company',
-    price: 2000,
-    purchases: 0,
-    duration: '7 Days',
-    approvalStatus: 'approved',
-    publishStatus: 'draft',
-    description: 'Standard incorporation with documentation'
-  },
-  {
-    id: '5',
-    name: 'Incorporation of a new company',
-    price: 2000,
-    purchases: 1283,
-    duration: '4 Days',
-    approvalStatus: 'approved',
-    publishStatus: 'published',
-    description: 'Full incorporation with consultation'
-  },
-  {
-    id: '6',
-    name: 'Incorporation of a new company',
-    price: 2000,
-    purchases: 5180,
-    duration: '5 Days',
-    approvalStatus: 'rejected',
-    publishStatus: 'archived',
-    description: 'Premium incorporation service'
-  }
-];
 
 
 
 
 
-export const useDashboardStore = create<DashboardState>((set) => ({
-  // Navigation
+
+export const useDashboardStore = create<DashboardState>((set, get) => ({
   activeMenu: 'Specialists',
   setActiveMenu: (menu) => set({ activeMenu: menu }),
-
-  // Services
-  services: initialServices,
-  addService: (service) =>
-    set((state) => ({
-      services: [...state.services, service]
-    })),
+  services: [],
+  totalServices: 0,
+  singleSpecialist: null,
+  addService: (service) => set((state) => ({ services: [...state.services, service] })),
   updateService: (id, updates) =>
     set((state) => ({
-      services: state.services.map((service) =>
-        service.id === id ? { ...service, ...updates } : service
-      )
+      services: state.services.map((s) => (s.id === id ? { ...s, ...updates } : s))
     })),
-  deleteService: (id) =>
-    set((state) => ({
-      services: state.services.filter((service) => service.id !== id)
-    })),
+  deleteService: async (id) => {
+    try {
+      await api.delete(`/specialist/${id}`);
+      get().fetchServices();
+    } catch (err) { 
+      console.error('Delete failed', err);
+    }
+  },
+   updateServiceStatus: async (id: string) => {
+    try {
+
+      console.log(id)
+      await api.patch(`/specialist/${id}/status`);
+      get().fetchServices();
+    } catch (err) {
+      console.error('Update status failed', err);
+    }
+  },
+  updateServiceStatusUnpublish: async (id: string) => {
+    try {
+
+      console.log(id)
+      await api.patch(`/specialist/${id}/unpublish`);
+      get().fetchServices();
+    } catch (err) {
+      console.error('Update status failed', err);
+    }
+  },
   setServices: (services) => set({ services }),
 
-  // Pagination
   currentPage: 1,
-  pageSize: 5,
+  pageSize: 10,
   setCurrentPage: (page) => set({ currentPage: page }),
 
-  // Search
   searchTerm: '',
   setSearchTerm: (term) => set({ searchTerm: term }),
 
-  // Edit Panel
   editingServiceId: null,
-  setEditingServiceId: (id) => set({ editingServiceId: id }),
+  setEditingServiceId: async (id, ) => {
+    try {
+      console.log( "Check id",id)
+    const res = await api.patch(`/specialist/${id}`);
 
-  // View Filter
+    console.log(res)
+      get().fetchServices();
+    } catch (err) {
+      console.error('Edit fail', err);
+    }
+  },
+   setSpecialistd: async (id: string) => {
+    try {
+
+      console.log(id)
+    const res = await api.get(`/specialist/${id}/single`);
+
+    console.log("Single specialist data",res.data) 
+    set({ singleSpecialist: res.data.data }); 
+      get().fetchServices();
+    } catch (err) {
+      console.error('Edit fail', err);
+    }
+  },
+
+
+
   viewFilter: 'all',
-  setViewFilter: (filter) => set({ viewFilter: filter }), 
+  setViewFilter: (filter) => set({ viewFilter: filter }),
 
 
+
+  fetchServices: async () => {
+    try {
+      const { currentPage, pageSize, searchTerm } = get();
+      const res = await api.get('/specialist', {
+        params: {
+          page: currentPage,
+          limit: pageSize,
+          searchTerm
+        }
+      });
+
+      set({
+        services: res.data.data.data,
+        totalServices: res?.data?.data.meta?.total || 0
+      });
+    } catch (err) {
+      console.error('Failed to fetch services', err);
+    }
+  }
 }));
+
+
+

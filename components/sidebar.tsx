@@ -36,6 +36,7 @@ const bottomMenuItems = [
 
 export function Sidebar() {
   const { activeMenu, setActiveMenu } = useDashboardStore();
+  const {user} = useAuth()
 
 
 
@@ -49,8 +50,8 @@ export function Sidebar() {
             C
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-foreground text-xs">Consultation Center Services</p>
-            <p className="text-muted-foreground text-[10px]">Company Secretaryy, Etc</p>
+            <p className="font-semibold text-foreground text-xs">{user?.name}</p>
+            <p className="text-muted-foreground text-[10px]">{user?.email}</p>
           </div>
         </div>
       </div>

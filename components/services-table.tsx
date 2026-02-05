@@ -18,25 +18,80 @@ import {
 } from './ui/dropdown-menu';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
-import { MoreVertical, Edit, Trash2, ChevronLeft, ChevronRight, Search, Plus, Download } from 'lucide-react';
+import {
+  MoreVertical,
+  Edit,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  Plus,
+  Download
+} from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import { CreateServiceDialog } from './CreateServiceModal';
+import { SlideOver } from './SlideOver';
+import { EditServiceForm } from './ui/EditServiceForm';
+import Link from 'next/link';
 
 export function ServicesTable() {
-  const {services,currentPage, pageSize, setCurrentPage, deleteService,searchTerm,setSearchTerm,viewFilter,setViewFilter, setEditingServiceId} = useDashboardStore();
+  const {
+    services,
+    currentPage,
+    pageSize,
+    fetchServices,
+    setCurrentPage,
+    deleteService,
+    searchTerm,
+    setSearchTerm,
+    viewFilter,
+    setViewFilter,
+    setEditingServiceId
+  } = useDashboardStore();
 
-  console.log(searchTerm)
 
-  // Filter services based on view filter
-  const filteredServices = services.filter((service) => {
-    if (viewFilter === 'drafts') return service.publishStatus === 'draft';
-    if (viewFilter === 'published') return service.publishStatus === 'published';
-    return true;
-  });
+  const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
+  const [editingService, setEditingService] = useState<any>(null);
 
+  // When clicking Edit
+  const handleEdit = (service: any) => {
+    setEditingService(service);
+    setIsSlideOverOpen(true);
+  };
+
+
+  // Fetch services when page, searchTerm, or filter changes
+  useEffect(() => {
+    fetchServices();
+  }, [currentPage, searchTerm, viewFilter, fetchServices]);
+
+
+
+  // Filter services based on view and search term
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      const matchesFilter =
+        viewFilter === 'drafts'
+          ? service.isDraft
+          : viewFilter === 'published'
+            ? !service.isDraft
+            : true;
+
+      const matchesSearch = service.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      return matchesFilter && matchesSearch;
+    });
+  }, [services, viewFilter, searchTerm]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredServices.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedServices = filteredServices.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(filteredServices.length / pageSize);
 
+  // Status badge colors
   const getStatusColor = (
     status: 'approved' | 'pending' | 'rejected'
   ): 'default' | 'secondary' | 'outline' => {
@@ -73,41 +128,25 @@ export function ServicesTable() {
       <div className="space-y-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Services</h1>
-          <p className="text-muted-foreground text-sm mt-1">Create and publish your services for Clients & Companies</p>
+          <p className="text-muted-foreground text-sm mt-1">
+            Create and publish your services for Clients & Companies
+          </p>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-6 border-b border-border">
-          <button
-            onClick={() => setViewFilter('all')}
-            className={`pb-3 px-1 text-sm font-medium transition-colors ${
-              viewFilter === 'all'
+          {['all', 'drafts', 'published'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setViewFilter(tab as 'all' | 'drafts' | 'published')}
+              className={`pb-3 px-1 text-sm font-medium transition-colors ${viewFilter === tab
                 ? 'text-foreground border-b-2 border-primary'
                 : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setViewFilter('drafts')}
-            className={`pb-3 px-1 text-sm font-medium transition-colors ${
-              viewFilter === 'drafts'
-                ? 'text-foreground border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Drafts
-          </button>
-          <button
-            onClick={() => setViewFilter('published')}
-            className={`pb-3 px-1 text-sm font-medium transition-colors ${
-              viewFilter === 'published'
-                ? 'text-foreground border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            Published
-          </button>
+                }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -127,10 +166,7 @@ export function ServicesTable() {
             <Download className="h-4 w-4" />
             Export
           </Button>
-          <Button size="sm" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create
-          </Button>
+          <CreateServiceDialog />
         </div>
       </div>
 
@@ -142,24 +178,12 @@ export function ServicesTable() {
               <TableHead className="w-12">
                 <input type="checkbox" className="h-4 w-4" />
               </TableHead>
-              <TableHead className="font-semibold text-foreground">
-                SERVICE
-              </TableHead>
-              <TableHead className="font-semibold text-foreground">
-                PRICE
-              </TableHead>
-              <TableHead className="font-semibold text-foreground">
-                PURCHASES
-              </TableHead>
-              <TableHead className="font-semibold text-foreground">
-                DURATION
-              </TableHead>
-              <TableHead className="font-semibold text-foreground">
-                APPROVAL STATUS
-              </TableHead>
-              <TableHead className="font-semibold text-foreground">
-                PUBLISH STATUS
-              </TableHead>
+              <TableHead className="font-semibold text-foreground">SERVICE</TableHead>
+              <TableHead className="font-semibold text-foreground">PRICE</TableHead>
+              <TableHead className="font-semibold text-foreground">PURCHASES</TableHead>
+              <TableHead className="font-semibold text-foreground">DURATION</TableHead>
+              <TableHead className="font-semibold text-foreground">APPROVAL STATUS</TableHead>
+              <TableHead className="font-semibold text-foreground">PUBLISH STATUS</TableHead>
               <TableHead className="w-12">ACTION</TableHead>
             </TableRow>
           </TableHeader>
@@ -169,26 +193,28 @@ export function ServicesTable() {
                 <TableCell>
                   <input type="checkbox" className="h-4 w-4" />
                 </TableCell>
-                <TableCell className="font-medium text-sm">{service.name}</TableCell>
+                <TableCell className="font-medium text-sm">{service.title}</TableCell>
                 <TableCell className="text-sm font-medium">
-                  RM {service.price.toLocaleString()}
+                  RM {parseInt(service.finalPrice).toLocaleString()}
                 </TableCell>
-                <TableCell className="text-sm">{service.purchases}</TableCell>
-                <TableCell className="text-sm">{service.duration}</TableCell>
+                <TableCell className="text-sm">{service.totalNumberOfRatings || 0}</TableCell>
+                <TableCell className="text-sm">{service.durationDays} days</TableCell>
                 <TableCell>
                   <Badge
-                    variant={getStatusColor(service.approvalStatus)}
+                    variant={getStatusColor(
+                      service.verificationStatus.toLowerCase() as 'approved' | 'pending' | 'rejected'
+                    )}
                     className="capitalize"
                   >
-                    {service.approvalStatus}
+                    {service.verificationStatus.toLowerCase()}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant={getPublishColor(service.publishStatus)}
+                    variant={getPublishColor(service.isDraft ? 'draft' : 'published')}
                     className="capitalize"
                   >
-                    {service.publishStatus}
+                    {service.isDraft ? 'draft' : 'published'}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -199,10 +225,20 @@ export function ServicesTable() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
+                      <Link href={`/dashboard/specialist/${service.id}`}>
+                       <DropdownMenuItem
+                        className="gap-2 cursor-pointer"
+                      >
+                        <Edit className="h-4 w-4" />
+                        <span>View Details</span>
+
+                      </DropdownMenuItem></Link>
+
                       <DropdownMenuItem
                         className="gap-2 cursor-pointer"
-                        onClick={() => setEditingServiceId(service.id)}
+                        onClick={() => handleEdit(service.id)}
                       >
+
                         <Edit className="h-4 w-4" />
                         <span>Edit</span>
                       </DropdownMenuItem>
@@ -225,8 +261,8 @@ export function ServicesTable() {
       {/* Pagination */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing {startIndex + 1} to {Math.min(endIndex, services.length)} of{' '}
-          {services.length} services
+          Showing {startIndex + 1} to {Math.min(endIndex, filteredServices.length)} of{' '}
+          {filteredServices.length} services
         </p>
         <div className="flex items-center gap-2">
           <Button
@@ -262,6 +298,12 @@ export function ServicesTable() {
             Next
             <ChevronRight className="h-4 w-4" />
           </Button>
+          <SlideOver
+            isOpen={isSlideOverOpen}
+            onClose={() => setIsSlideOverOpen(false)}
+          >
+            {editingService && <EditServiceForm service={editingService} />}
+          </SlideOver>
         </div>
       </div>
     </div>
