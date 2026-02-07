@@ -37,10 +37,10 @@ export default function SignupPage() {
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      name: "Reza",
-      email: "shamimrezaone@gmail.com",
-      password: "123456",
-      confirmPassword: "123456",
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
       terms: true,
     },
   });
@@ -188,7 +188,7 @@ export default function SignupPage() {
               Or sign up with
             </div>
 
-            <GoogleBtn />
+            {/* <GoogleBtn /> */}
 
             <p className="text-center mt-6 text-sm">
               Already have an account?{" "}

@@ -35,8 +35,8 @@ export function LoginForm() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: 'shamimrezaone@gmail.com',
-      password: '123456',
+      email: '',
+      password: '',
     },
   });
 
@@ -125,7 +125,7 @@ export function LoginForm() {
           </div>
         </div>
 
-       <GoogleBtn/>
+       {/* <GoogleBtn/> */}
 
         <p className="text-center text-sm text-muted-foreground">
           Dont have an account?{' '}
