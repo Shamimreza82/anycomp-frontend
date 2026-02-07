@@ -18,6 +18,8 @@ import axios from 'axios';
 import { useDashboardStore } from '@/store/dashboardStore';
 import api from '@/lib/axiosInstance';
 import { SlideOver } from './SlideOver';
+import { FileUpload } from './FileUpload';
+
 
 export function CreateServiceDialog() {
   const { fetchServices } = useDashboardStore();
@@ -145,6 +147,7 @@ export function CreateServiceDialog() {
             />
           </div>
         </div>
+        <FileUpload />
 
         <DialogFooter className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => setOpen(false)}>

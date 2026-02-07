@@ -3,7 +3,6 @@
 
 import { Form } from "@/components/ui/form"
 
-import { FormControl } from "@/components/ui/form"
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -41,16 +40,14 @@ export function LoginForm() {
     },
   });
 
-  type LoginResponse = {
-    message?: string;
-    [key: string]: any;
-  };
+
 
   async function onSubmit(data: LoginFormData) {
     setIsLoading(true);
     setError(null);
     try {
-      await login(data.email, data.password);
+     const res = await login(data.email, data.password);
+
       toast.success('Login successful!');
       router.push('/dashboard');
     } catch (err: any) {

@@ -16,11 +16,11 @@ export function middleware(req: NextRequest) {
         return NextResponse.next();
     }
 
-    if (!token) {
-        // Redirect to login if no token
-        const loginUrl = new URL("/login", req.url);
-        return NextResponse.redirect(loginUrl);
-    }
+    // if (!token) {
+    //     // Redirect to login if no token
+    //     const loginUrl = new URL("/login", req.url);
+    //     return NextResponse.redirect(loginUrl);
+    // }
 
     // If token exists, continue
     return NextResponse.next();
