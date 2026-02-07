@@ -1,6 +1,6 @@
 'use client';
 
-import { useDashboardStore } from '@/store/dashboardStore';
+import { Service, useDashboardStore } from '@/store/dashboardStore';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import {
@@ -9,10 +9,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from './ui/dropdown-menu';
-import { Search, MoreVertical } from 'lucide-react';
+import { Search, MoreVertical, Plus } from 'lucide-react';
+import { CreateServiceSheet, EditServiceSheet } from './from/service-sheet';
+import { useState } from 'react';
 
 export function DashboardHeader() {
   const { activeMenu, searchTerm, setSearchTerm } = useDashboardStore();
+
+  const [createSheetOpen, setCreateSheetOpen] = useState(false)
+  const [editSheetOpen, setEditSheetOpen] = useState(false)
+  const [editingService, setEditingService] = useState<Service | null>(null)
 
   return (
     <div className="flex flex-col gap-4 pb-6 border-b border-border">
@@ -59,9 +65,27 @@ export function DashboardHeader() {
           <Button variant="outline">Published</Button>
         </div>
 
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-          Create
+        <CreateServiceSheet
+          open={createSheetOpen}
+          onOpenChange={setCreateSheetOpen}
+          onSuccess={() => {
+            // Optionally refresh the service list or show a success message
+          }}
+        />
+        <Button onClick={() => setCreateSheetOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Service
         </Button>
+        {/* <EditServiceSheet
+          open={editSheetOpen}
+          onOpenChange={(open) => {
+            setEditSheetOpen(open)
+            if (!open) setEditingService(null)
+          }}
+          service={editingService}
+          onSuccess={}
+        /> */}
+
         <Button className="bg-blue-600 text-white hover:bg-blue-700">Export</Button>
       </div>
     </div>

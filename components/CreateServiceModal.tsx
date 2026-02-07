@@ -14,10 +14,8 @@ import {
   DialogTrigger
 } from './ui/dialog';
 import { toast } from 'sonner';
-import axios from 'axios';
 import { useDashboardStore } from '@/store/dashboardStore';
 import api from '@/lib/axiosInstance';
-import { SlideOver } from './SlideOver';
 import { FileUpload } from './FileUpload';
 
 
@@ -27,8 +25,8 @@ export function CreateServiceDialog() {
 
   // Form state
   const [form, setForm] = useState({
-    title: 'Professional',
-    slug: 'professional',
+    title: 'Professional Web App Development',
+    slug: 'professional-web-app-development',
     description:
       'I will build a fast, secure, and scalable web application using modern technologies.',
     basePrice: '5000.00',
@@ -52,6 +50,23 @@ export function CreateServiceDialog() {
     setForm(updatedForm);
   };
 
+
+  /// File upload handler
+const uploadServiceImage = async (file: File) => {
+  const formData = new FormData()
+    formData.append('photo', file)
+    formData.append('title', 'Service Image')
+    formData.append('specialistId', '12345')
+
+    const res = await api.post('/media/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+
+  return res.data
+}
+
+   
+  
   const handleSubmit = async () => {
     try {
       const res = await api.post('/specialist', form, { withCredentials: true });
@@ -147,7 +162,15 @@ export function CreateServiceDialog() {
             />
           </div>
         </div>
-        <FileUpload />
+        <FileUpload
+          label="Service Image"
+          maxSizeMB={4}
+          onUpload={uploadServiceImage}
+          onUploadSuccess={(data) => {
+            console.log("file data", data)
+            toast.success('Image uploaded!')
+          }}
+        />
 
         <DialogFooter className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => setOpen(false)}>

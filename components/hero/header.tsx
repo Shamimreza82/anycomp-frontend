@@ -39,12 +39,12 @@ export function Header() {
           </div>
 
           {/* Login button */}
-          {/* {isAuthenticated ? (
+          {isAuthenticated ? (
               <Link href="/dashboard">
                 <Button variant="outline" className="w-full">Dashboard</Button>
               </Link>
-            ): <Link href="/login" className="w-full"> <Button variant="outline" className="w-full">Login</Button></Link>} */}
-            <Link href="/dashboard">
+            ): <Link href="/login" className="w-full"> <Button variant="outline" className="w-full">Login</Button></Link>} 
+            {/* <Link href="/dashboard">
                 <Button variant="outline" className="w-full">Dashboard</Button>
               </Link>
 

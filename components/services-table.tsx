@@ -53,6 +53,8 @@ export function ServicesTable() {
   const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
 
+
+
   // When clicking Edit
   const handleEdit = (service: any) => {
     setEditingService(service);
