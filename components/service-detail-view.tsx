@@ -59,9 +59,9 @@ export function ServiceDetailView({ serviceId }: { serviceId: string }) {
           <h1 className="text-2xl font-bold text-foreground">{title}</h1>
 
           <div className="flex gap-3 mt-4">
-            <Button size="sm" className="gap-2">
+            {/* <Button size="sm" className="gap-2">
               Edit <Edit className="h-4 w-4" />
-            </Button>
+            </Button> */}
             {singleSpecialist.verificationStatus === "PENDING" ? (
               <Button onClick={handlePublish} size="sm" variant="default" className="gap-2 coursor-pointer">
                 Publish
@@ -144,23 +144,23 @@ export function ServiceDetailView({ serviceId }: { serviceId: string }) {
             <h2 className="text-xl font-bold">Professional Fee</h2>
 
             <div className="text-center py-6 border-b">
-              <p className="text-4xl font-bold">৳ {finalPrice}</p>
+              <p className="text-4xl font-bold">RM {finalPrice}</p>
             </div>
 
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Base price</span>
-                <span className="font-medium">৳ {basePrice}</span>
+                <span className="font-medium">RM {basePrice}</span>
               </div>
 
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Platform fee</span>
-                <span className="font-medium">৳ {platformFee}</span>
+                <span className="font-medium">RM {platformFee}</span>
               </div>
 
               <div className="border-t pt-3 flex justify-between font-semibold">
                 <span>Total</span>
-                <span>৳ {finalPrice}</span>
+                <span>RM {finalPrice}</span>
               </div>
             </div>
           </div>

@@ -1,8 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { X } from "lucide-react";
 
 interface SlideOverProps {
@@ -14,7 +13,9 @@ interface SlideOverProps {
 
 export function SlideOver({ isOpen, onClose, children, title = "Edit Service" }: SlideOverProps) {
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Sheet open={isOpen} onOpenChange={(open) => {
+      if (!open) onClose(); // Call onClose only when the sheet is closing
+    }}>
       <SheetContent side="right">
         <SheetHeader>
           <div className="flex items-center justify-between">
@@ -26,6 +27,7 @@ export function SlideOver({ isOpen, onClose, children, title = "Edit Service" }:
             </SheetClose>
           </div>
         </SheetHeader>
+
         <div className="mt-4">
           {children}
         </div>

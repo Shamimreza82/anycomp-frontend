@@ -25,14 +25,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  Plus,
   Download
 } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import { CreateServiceDialog } from './CreateServiceModal';
-import { SlideOver } from './SlideOver';
-import { EditServiceForm } from './ui/EditServiceForm';
 import Link from 'next/link';
+import { EditSheet } from './from/EditSheet';
 
 export function ServicesTable() {
   const {
@@ -46,28 +44,18 @@ export function ServicesTable() {
     setSearchTerm,
     viewFilter,
     setViewFilter,
-    setEditingServiceId
   } = useDashboardStore();
 
-
-  const [isSlideOverOpen, setIsSlideOverOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingService, setEditingService] = useState<any>(null);
 
-
-
   // When clicking Edit
-  const handleEdit = (service: any) => {
-    setEditingService(service);
-    setIsSlideOverOpen(true);
-  };
 
 
   // Fetch services when page, searchTerm, or filter changes
   useEffect(() => {
     fetchServices();
   }, [currentPage, searchTerm, viewFilter, fetchServices]);
-
-
 
   // Filter services based on view and search term
   const filteredServices = useMemo(() => {
@@ -93,7 +81,7 @@ export function ServicesTable() {
   const endIndex = startIndex + pageSize;
   const paginatedServices = filteredServices.slice(startIndex, endIndex);
 
-  // Status badge colors
+  // Badge colors
   const getStatusColor = (
     status: 'approved' | 'pending' | 'rejected'
   ): 'default' | 'secondary' | 'outline' => {
@@ -228,22 +216,32 @@ export function ServicesTable() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
                       <Link href={`/dashboard/specialist/${service.id}`}>
-                       <DropdownMenuItem
-                        className="gap-2 cursor-pointer"
-                      >
-                        <Edit className="h-4 w-4" />
-                        <span>View Details</span>
+                        <DropdownMenuItem className="gap-2 cursor-pointer">
+                          <Edit className="h-4 w-4" />
+                          <span>View Details</span>
+                        </DropdownMenuItem>
+                      </Link>
 
-                      </DropdownMenuItem></Link>
+                      {/* EDIT BUTTON */}
+
 
                       <DropdownMenuItem
-                        className="gap-2 cursor-pointer"
-                        onClick={() => handleEdit(service.id)}
+                        className="gap-2 cursor-pointer text-destructive hover:text-destructive"
                       >
+                        {/* <DropdownMenuItem
+                          className="gap-2 cursor-pointer"
+                          onClick={() => {
+                            setEditingService(service);
+                            setIsEditOpen(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                          <span>Edit</span>
+                        </DropdownMenuItem> */}
 
-                        <Edit className="h-4 w-4" />
-                        <span>Edit</span>
                       </DropdownMenuItem>
+
+                      {/* DELETE BUTTON */}
                       <DropdownMenuItem
                         className="gap-2 cursor-pointer text-destructive hover:text-destructive"
                         onClick={() => deleteService(service.id)}
@@ -300,13 +298,15 @@ export function ServicesTable() {
             Next
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <SlideOver
-            isOpen={isSlideOverOpen}
-            onClose={() => setIsSlideOverOpen(false)}
-          >
-            {editingService && <EditServiceForm service={editingService} />}
-          </SlideOver>
         </div>
+
+        {/* {paginatedServices && (
+          <EditSheet
+            open={isEditOpen}
+            onOpenChange={setIsEditOpen}
+            apiData={editingService}
+          />
+        )} */}
       </div>
     </div>
   );
