@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -13,82 +17,119 @@ import {
   DialogTitle,
   DialogTrigger
 } from './ui/dialog';
+import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useDashboardStore } from '@/store/dashboardStore';
 import api from '@/lib/axiosInstance';
-import { FileUpload } from './FileUpload';
 
+/* =========================
+   Zod Schema
+========================= */
+const serviceSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters'),
+  slug: z.string().min(3, 'Slug is required'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  basePrice: z
+    .string()
+    .min(1, 'Base price required')
+    .refine((val) => !isNaN(Number(val)), { message: 'Base price must be a number' }),
+  platformFee: z
+    .string()
+    .min(1, 'Platform fee required')
+    .refine((val) => !isNaN(Number(val)), { message: 'Platform fee must be a number' }),
+  durationDays: z
+    .number({ required_error: 'Duration is required' })
+    .min(1, 'Minimum 1 day required')
+});
+
+type ServiceFormValues = z.infer<typeof serviceSchema>;
 
 export function CreateServiceDialog() {
-  const { fetchServices } = useDashboardStore();
   const [open, setOpen] = useState(false);
+  const [images, setImages] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false); // ✅ Loading state
 
-  // Form state
-  const [form, setForm] = useState({
-    title: 'Professional Web App Development',
-    slug: 'professional-web-app-development',
-    description:
-      'I will build a fast, secure, and scalable web application using modern technologies.',
-    basePrice: '5000.00',
-    platformFee: '500.00',
-    finalPrice: '5500.00',
-    durationDays: 15
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors }
+  } = useForm<ServiceFormValues>({
+    resolver: zodResolver(serviceSchema),
+    defaultValues: {
+      durationDays: 0
+    }
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-
-    let updatedForm = { ...form, [name]: value };
-
-    // Auto-calculate finalPrice
-    if (name === 'basePrice' || name === 'platformFee') {
-      const base = parseFloat(updatedForm.basePrice) || 0;
-      const fee = parseFloat(updatedForm.platformFee) || 0;
-      updatedForm.finalPrice = (base + fee).toFixed(2);
-    }
-
-    setForm(updatedForm);
+  /* =========================
+     Auto Slug Generator
+  ========================= */
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
   };
 
+  /* =========================
+     Watch Prices
+  ========================= */
+  const basePrice = watch('basePrice');
+  const platformFee = watch('platformFee');
 
-  /// File upload handler
-const uploadServiceImage = async (file: File) => {
-  const formData = new FormData()
-    formData.append('photo', file)
-    formData.append('title', 'Service Image')
-    formData.append('specialistId', '12345')
+  const finalPrice =
+    (parseFloat(basePrice || '0') + parseFloat(platformFee || '0')).toFixed(2);
 
-    const res = await api.post('/media/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
+  /* =========================
+     Remove Image
+  ========================= */
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  };
 
-  return res.data
-}
+  /* =========================
+     Submit
+  ========================= */
+  const onSubmit = async (data: ServiceFormValues) => {
+    if (images.length === 0) {
+      toast.error('Please upload at least one image');
+      return;
+    }
 
-   
-  
-  const handleSubmit = async () => {
+    setLoading(true); // ✅ Start loading
     try {
-      const res = await api.post('/specialist', form, { withCredentials: true });
+      const formData = new FormData();
+
+      const formattedData = {
+        ...data,
+        finalPrice,
+        durationDays: Number(data.durationDays)
+      };
+
+      images.forEach((file) => formData.append('files', file));
+      formData.append('data', JSON.stringify(formattedData));
+
+      const res = await api.post('/specialist', formData, { withCredentials: true });
 
       if (res.data.success) {
-        toast.success('Service created successfully!');
-        fetchServices(); // Refresh table
+        toast.success('Service created successfully');
         setOpen(false);
-      } else {
-        toast.error(res.data.message || 'Failed to create service.');
+        setImages([]);
+        window.location.reload(); // Reload to show new service
       }
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Something went wrong');
+    } finally {
+      setLoading(false); // ✅ Stop loading
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="gap-2">
-          Create
-        </Button>
+        <Button size="sm">Create Service</Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-lg">
@@ -96,91 +137,101 @@ const uploadServiceImage = async (file: File) => {
           <DialogTitle>Create Service</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 mt-2">
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" value={form.title} onChange={handleChange} />
-          </div>
-
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="slug">Slug</Label>
-            <Input id="slug" name="slug" value={form.slug} onChange={handleChange} />
-          </div>
-
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              className="resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="basePrice">Base Price</Label>
-              <Input
-                id="basePrice"
-                name="basePrice"
-                value={form.basePrice}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="platformFee">Platform Fee</Label>
-              <Input
-                id="platformFee"
-                name="platformFee"
-                value={form.platformFee}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="finalPrice">Final Price</Label>
-              <Input
-                id="finalPrice"
-                name="finalPrice"
-                value={form.finalPrice}
-                onChange={handleChange}
-                readOnly
-              />
-            </div>
-          </div>
-
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="durationDays">Duration (days)</Label>
+        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
+          {/* TITLE */}
+          <div>
+            <Label htmlFor="title">Service Title</Label>
             <Input
-              id="durationDays"
-              name="durationDays"
-              type="number"
-              value={form.durationDays}
-              onChange={handleChange}
+              id="title"
+              {...register('title')}
+              onChange={(e) => {
+                setValue('title', e.target.value);
+                setValue('slug', generateSlug(e.target.value));
+              }}
             />
+            {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
           </div>
-        </div>
-        <FileUpload
-          label="Service Image"
-          maxSizeMB={4}
-          onUpload={uploadServiceImage}
-          onUploadSuccess={(data) => {
-            console.log("file data", data)
-            toast.success('Image uploaded!')
-          }}
-        />
 
-        <DialogFooter className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit}>Create</Button>
-        </DialogFooter>
+          {/* SLUG */}
+          <div>
+            <Label htmlFor="slug">Slug</Label>
+            <Input id="slug" {...register('slug')} />
+            {errors.slug && <p className="text-red-500 text-sm">{errors.slug.message}</p>}
+          </div>
+
+          {/* DESCRIPTION */}
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea id="description" {...register('description')} />
+            {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
+          </div>
+
+          {/* PRICE */}
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <Input placeholder="Base Price" {...register('basePrice')} />
+              {errors.basePrice && <p className="text-red-500 text-sm">{errors.basePrice.message}</p>}
+            </div>
+            <div>
+              <Input placeholder="Platform Fee" {...register('platformFee')} />
+              {errors.platformFee && <p className="text-red-500 text-sm">{errors.platformFee.message}</p>}
+            </div>
+            <Input value={finalPrice} readOnly placeholder="Final Price" />
+          </div>
+
+          {/* DURATION */}
+          <div>
+            <Input
+              type="number"
+              placeholder="Duration (days)"
+              {...register('durationDays', { valueAsNumber: true })}
+            />
+            {errors.durationDays && <p className="text-red-500 text-sm">{errors.durationDays.message}</p>}
+          </div>
+
+          {/* SERVICE IMAGES */}
+          <div>
+            <Label>Service Images</Label>
+            <Input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={(e) => e.target.files && setImages(Array.from(e.target.files))}
+            />
+
+            {/* IMAGE PREVIEW WITH REMOVE */}
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {images.map((file, i) => (
+                <div key={i} className="relative">
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt="preview"
+                    className="h-24 w-full object-cover rounded"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    className="absolute top-1 right-1 p-1 rounded-full"
+                    onClick={() => removeImage(i)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Creating...' : 'Create'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
-      {/* SlideOver */}
-
     </Dialog>
   );
 }

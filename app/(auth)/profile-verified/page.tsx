@@ -12,15 +12,15 @@ const ProfileVerifiedPage = () => {
       <Card className="max-w-md w-full shadow-lg border border-slate-200">
         <CardHeader className="flex flex-col items-center justify-center gap-2">
           <CheckCircle2 className="w-16 h-16 text-green-500" />
-          <CardTitle className="text-2xl font-bold text-center">Profile Verified!</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Account Verified!</CardTitle>
           <CardDescription className="text-center text-slate-600">
-            Your profile has been verified successfully. You can now access all features.
+            Your account has been verified successfully. You can now access all features.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center mt-4">
-          <Link href="/dashboard">
+          <Link href="/login">
             <Button className="bg-green-500 hover:bg-green-600 text-white">
-              Go to Dashboard
+              Login
             </Button>
           </Link>
         </CardContent>
