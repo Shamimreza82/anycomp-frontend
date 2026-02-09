@@ -16,7 +16,7 @@ export function Header() {
     <header className="border-b border-border bg-white">
       <div className="mx-auto flex items-center justify-between px-6 py-4">
         {/* Logo */}
-        <h1 className="text-2xl font-bold text-primary">ANTECORP</h1>
+        <h1 className="text-2xl font-bold text-primary">ANYCOMP</h1>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">

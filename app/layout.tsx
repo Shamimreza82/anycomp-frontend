@@ -5,10 +5,18 @@ import './globals.css'
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/context/AuthContext';
+import { Red_Hat_Display } from 'next/font/google'
 
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
+
+
+const redHat = Red_Hat_Display({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-redhat',
+})
 
 export const metadata: Metadata = {
   title: 'anycompany - Incorporate your business with ease',
@@ -42,8 +50,8 @@ export default function RootLayout({
   
   return (
     <html lang="en">
-      <body className={`font-sans antialiased`}>
-        <AuthProvider>
+        <body className={`${redHat.variable}`}>
+          <AuthProvider>
           <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
             <Toaster />
             {children}

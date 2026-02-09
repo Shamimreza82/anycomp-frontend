@@ -3,6 +3,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@layer base {
+  body {
+    color: #222222;
+  }
+}
+
 :root {
   --background: oklch(0.99 0 0);
   --foreground: oklch(0.12 0 0);
